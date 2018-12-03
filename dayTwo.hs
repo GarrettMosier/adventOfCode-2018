@@ -2,29 +2,39 @@ import Data.List.Split
 import Data.List
 import Data.Set 
 
+type ID = String
 
 main = do
-  input <- readFile inputLocation
-  let splitInput = splitOn "\n" input
-  print splitInput
-  let checksums = fmap checksum splitInput
-  let bti x = if x == True then 1 else 0
-  let (x,y) = (sum (fmap (bti . fst) checksums), sum (fmap (bti . snd) checksums))
-  print (x*y)
-  print $ areSimilar "fghij" "fguij" False 
-  print $ areSimilar "fghij" "fguil" False
-  print $ Data.List.filter (\(_,_,x) -> x == True) [(x, y, areSimilar x y False) | x <- splitInput, y <- splitInput]
+  input <- (fmap lines (readFile inputLocation))
+  let checksums = fmap checksum input
+  let bti x = if x then 1 else 0
+  let (twos, threes) = (sum (fmap (bti . fst) checksums), sum (fmap (bti . snd) checksums))
+  print ("The answer to part one is " ++ (show (twos * threes)))
+  print $ findSimilarPairs input
 
 
-areSimilar :: String -> String -> Bool -> Bool
-areSimilar [] [] areDifferent = if areDifferent then True else False
-areSimilar (x:xs) [] _ = False
-areSimilar [] (y:ys) _ = False
-areSimilar (x:xs) (y:ys) foundDifferent = if x == y then areSimilar xs ys foundDifferent else if foundDifferent == True then False else areSimilar xs ys True
+findSimilarPairs :: [ID] -> [(ID, ID, Bool)]
+findSimilarPairs fileInput = Data.List.filter (\(_,_,x) -> x) [(x, y, areSimilar x y) | x <- fileInput, y <- fileInput]
 
-checksum :: String -> (Bool, Bool)
+
+areSimilar :: ID -> ID -> Bool
+areSimilar x y = areSimilarHelper x y False 
+
+areSimilarHelper :: ID -> ID -> Bool -> Bool
+areSimilarHelper [] [] haveFoundDifference = haveFoundDifference
+areSimilarHelper (x:xs) [] _ = False
+areSimilarHelper [] (y:ys) _ = False
+areSimilarHelper (x:xs) (y:ys) haveFoundDifference = if x == y
+  then areSimilarHelper xs ys haveFoundDifference
+  else
+    if haveFoundDifference
+      then False
+      else areSimilarHelper xs ys True
+
+
+checksum :: ID -> (Bool, Bool)
 checksum x = (elem 2 finalCounts , elem 3 finalCounts)
-  where finalCounts = fmap length (group sorted)
-        sorted = sort x :: String
+  where finalCounts = fmap length ((group . sort) x)
+
 
 inputLocation = "../Downloads/input-2.txt"
