@@ -10,11 +10,22 @@ main = do
   let bti x = if x then 1 else 0
   let (twos, threes) = (sum (fmap (bti . fst) checksums), sum (fmap (bti . snd) checksums))
   print ("The answer to part one is " ++ (show (twos * threes)))
-  print $ findSimilarPairs input
+  print ("The answer to part two is " ++ (findTheSimilarPartOfId input))
 
 
-findSimilarPairs :: [ID] -> [(ID, ID, Bool)]
-findSimilarPairs fileInput = Data.List.filter (\(_,_,x) -> x) [(x, y, areSimilar x y) | x <- fileInput, y <- fileInput]
+findTheSimilarPartOfId :: [ID] -> String
+findTheSimilarPartOfId fileInput = (ignoreDifferentCharacters . head) similarPairs
+  where similarPairs = findSimilarPairs fileInput
+
+ignoreDifferentCharacters :: (ID, ID) -> String
+ignoreDifferentCharacters ([], []) = []
+ignoreDifferentCharacters (x:xs, y:ys) = if x == y
+  then x : (ignoreDifferentCharacters (xs,ys))
+  else ignoreDifferentCharacters (xs,ys)
+
+findSimilarPairs :: [ID] -> [(ID, ID)]
+findSimilarPairs fileInput = fmap (\(x,y,_) -> (x,y)) filteredList
+  where filteredList = Data.List.filter (\(_,_,x) -> x) [(x, y, areSimilar x y) | x <- fileInput, y <- fileInput]
 
 
 areSimilar :: ID -> ID -> Bool
