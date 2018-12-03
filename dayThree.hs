@@ -6,6 +6,7 @@ import Data.Either.Unwrap
 import Text.Parsec
 import Text.Parsec.String
 
+import Common
 
 main = do
   input <- readFile inputLocation
@@ -46,9 +47,6 @@ getCoordCounts fabrics = coordCounts
         groupedCoords = (group . sort) coords 
         coordCounts = fmap (\x -> (x !! 0, length x)) groupedCoords 
 
-
-int :: Parser Int
-int = read <$> many1 digit
 
 parser :: Parser Fabric
 parser = do
