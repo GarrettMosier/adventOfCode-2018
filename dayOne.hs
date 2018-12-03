@@ -4,29 +4,24 @@ import Data.Set
 
 main = do
   input <- readFile inputLocation
-  let splitInput = fmap parse $ splitOn "\n" input 
-      frequencies = fmap ignoreNothing splitInput
-  print frequencies
-  print $ defaultCall frequencies
-  print $ defaultCall [-1, 1]
+  let splitInput = fmap parse $ lines input 
+      frequencies = fmap (maybe 0 id) splitInput
+  print ("The answer to part one is " ++ show (sum frequencies))
+  print ("The answer to part two is " ++ show (findDuplicate frequencies))
 
 
-defaultCall :: [Int] -> Maybe Int
-defaultCall x = findDuplicate empty (cycle x) 0
+findDuplicate :: [Int] -> Maybe Int
+findDuplicate x = findDuplicateHelper empty (cycle x) 0
 
 
-findDuplicate :: Set Int -> [Int] -> Int -> Maybe Int
-findDuplicate _ [] _ = Nothing
-findDuplicate foundFrequencies (currentChange:changes) oldFrequency = if member newFrequency foundFrequencies
+findDuplicateHelper :: Set Int -> [Int] -> Int -> Maybe Int
+findDuplicateHelper _ [] _ = Nothing
+findDuplicateHelper foundFrequencies (currentChange:changes) oldFrequency = if member newFrequency foundFrequencies
   then return newFrequency
-  else findDuplicate updatedFoundFrequencies changes newFrequency
+  else findDuplicateHelper updatedFoundFrequencies changes newFrequency
 
   where newFrequency = oldFrequency + currentChange
         updatedFoundFrequencies = Data.Set.insert oldFrequency foundFrequencies
-
-
-ignoreNothing Nothing = 0
-ignoreNothing (Just x) = x
 
 
 parse :: String -> Maybe Int
