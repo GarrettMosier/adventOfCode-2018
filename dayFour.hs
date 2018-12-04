@@ -23,9 +23,9 @@ data Timestamp = Timestamp {
   day :: Int,
   hour :: Int,
   minute :: Int,
-  action :: String } deriving (Show, Ord, Eq) -- Make it have the Action type
+  action :: Action } deriving (Show, Ord, Eq)
 
-data Action = BeginShift GuardID | FallAsleep | WakeUp 
+data Action = BeginShift GuardID | FallAsleep | WakeUp deriving (Show, Ord, Eq)
 
 type GuardID = Int
 
@@ -34,8 +34,13 @@ calculateSleepyGuard :: [Timestamp] -> GuardID
 calculateSleepyGuard x = calculateSleepyGuardHelper x empty
 
 
+-- Pattern match on action
 calculateSleepyGuardHelper :: [Timestamp] -> Map GuardID Int -> GuardID
-calculateSleepyGuardHelper line = undefined
+calculateSleepyGuardHelper (timestamp@(Timestamp _ _ _ _ _ (BeginShift gid)):ts) x = gid
+
+
+guardAction :: Parser Action
+guardAction = undefined
 
 
 parser :: Parser Timestamp
@@ -51,7 +56,7 @@ parser = do
   _ <- Text.Parsec.oneOf ":"
   minute <- int
   _ <- Text.Parsec.oneOf "]"
-  action <- many anyChar
+  action <- guardAction
   
   return (Timestamp year month day hour minute action)
 
