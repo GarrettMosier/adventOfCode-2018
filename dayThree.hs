@@ -50,16 +50,13 @@ getCoordCounts fabrics = coordCounts
 
 parser :: Parser Fabric
 parser = do
-  _ <- Text.Parsec.oneOf "#"
+  _ <- Text.Parsec.string "#"
   line <- int
-  _ <- Text.Parsec.oneOf " "
-  _ <- Text.Parsec.oneOf "@"
-  _ <- Text.Parsec.oneOf " "
+  _ <- Text.Parsec.string " @ "
   left <- int
   _ <- Text.Parsec.oneOf ","
   top <- int
-  _ <- Text.Parsec.oneOf ":" -- TODO Learn how to have it ignore the entire string, not just the one character
-  _ <- Text.Parsec.oneOf " "
+  _ <- Text.Parsec.string ": "
   width <- int
   _ <- Text.Parsec.oneOf "x"
   height <- int
