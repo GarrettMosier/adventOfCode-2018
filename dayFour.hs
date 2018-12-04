@@ -11,7 +11,9 @@ import Common
 
 main = do
   input <- fmap lines $ readFile inputLocation
-  let sortedActions = sort $ rights $ fmap (parse parser "") input
+  let parsedInput = fmap (parse parser "") input
+  let sortedActions = sort $ rights parsedInput
+  print $ lefts parsedInput
   mapM_ print $ take 10 $ sortedActions
   print ("The solution to part one is " ++ "")
   print ("The solution to part two is " ++ "")
@@ -40,16 +42,19 @@ calculateSleepyGuardHelper (timestamp@(Timestamp _ _ _ _ _ (BeginShift gid)):ts)
 
 
 guardAction :: Parser Action
-guardAction = choice [wakeUpParser, fallAsleepParser, beginShiftParser]
+guardAction = wakeUpParser <|> fallAsleepParser <|> beginShiftParser
 
+wakeUpParser :: Parser Action
 wakeUpParser = do
-  _ <- "wakes up"
+  _ <- string "wakes up"
   return WakeUp
 
+fallAsleepParser :: Parser Action
 fallAsleepParser = do
-  _ <- "falls asleep"
+  _ <- string "falls asleep"
   return FallAsleep
 
+beginShiftParser :: Parser Action
 beginShiftParser = do 
   _ <- string "Guard #"
   guardID <- int
@@ -69,7 +74,7 @@ parser = do
   hour <- int
   _ <- Text.Parsec.oneOf ":"
   minute <- int
-  _ <- Text.Parsec.oneOf "]"
+  _ <- Text.Parsec.string "] "
   action <- guardAction
   
   return (Timestamp year month day hour minute action)
