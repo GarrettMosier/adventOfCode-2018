@@ -40,7 +40,21 @@ calculateSleepyGuardHelper (timestamp@(Timestamp _ _ _ _ _ (BeginShift gid)):ts)
 
 
 guardAction :: Parser Action
-guardAction = undefined
+guardAction = choice [wakeUpParser, fallAsleepParser, beginShiftParser]
+
+wakeUpParser = do
+  _ <- "wakes up"
+  return WakeUp
+
+fallAsleepParser = do
+  _ <- "falls asleep"
+  return FallAsleep
+
+beginShiftParser = do 
+  _ <- string "Guard #"
+  guardID <- int
+  _ <- string " begins shift"
+  return (BeginShift guardID)
 
 
 parser :: Parser Timestamp
